@@ -1,0 +1,43 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Employee {
+  id          Int      @id @default(autoincrement())
+  name        String
+  contact     String   @unique
+  position    String
+  shifts      Shift[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Shift {
+  id         Int      @id @default(autoincrement())
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)  // onDelete: Cascade をここに設定
+  employeeId Int
+  date       DateTime
+  type       ShiftType
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([employeeId, date])
+}
+
+
+
+enum ShiftType {
+  REQUESTED_SHIFT       // 希望勤務
+  REQUESTED_HOLIDAY     // 希望休日
+  WORK_DAY              // 勤務
+  HOLIDAY               // 休日
+  EARLY_SHIFT_LUNCH     // 早番昼食
+  CLEANING_DUTY         // 掃除当番
+  FOOD_INSPECTION_DUTY  // 検食当番
+}
